@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Startseite</title>
+</head>
+<body>
+    <h1>Startseite</h1>
+    <p>Status: {{ logged_in }}</p>
+    {% if not logged_in == 'eingeloggt' %}
+        <a href="/login">Login</a>
+    {% else %}
+        <a href="/logout">Logout</a>
+    {% endif %}
+</body>
+</html>

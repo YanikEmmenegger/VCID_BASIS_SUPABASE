@@ -1,0 +1,4 @@
+#exclude .env
+#exclude ..env.example
+.env
+
