@@ -19,7 +19,7 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     user = supabase.auth.get_session()
-    logged_in = 'eingeloggt' if user else 'nicht eingeloggt'
+    logged_in = 'logged in' if user else 'not logged in'
     return render_template('index.html', logged_in=logged_in)
 
 
@@ -29,16 +29,26 @@ def login():
         email = request.form['email']
         password = request.form['password']
         try:
-            supabase.auth.sign_in_with_password({"email": email, "password": password})
-            return redirect(url_for('home'))
+            user = supabase.table('users').select('*').eq('email', email).execute()
+            if not user.data:
+                try:
+                    supabase.auth.sign_up({"email": email, "password": password})
+                    return redirect(url_for('verify'))
+                except Exception as e:
+                    return render_template('login.html', error=e)
+            else:
+                try:
+                    supabase.auth.sign_in_with_password({"email": email, "password": password})
+                    if user.data[0]['name']:
+                        return redirect(url_for('home'))
+                    else:
+                        return redirect(url_for('onboard'))
+                except Exception as e:
+                    return render_template('login.html', error=e)
         except Exception as e:
-            return redirect(url_for('login', error=e))
-    # if user is already logged in, redirect to home
+            return render_template('login.html', error=e)
     if supabase.auth.get_session():
         return redirect(url_for('home'))
-    # if there is an error, display it
-    if request.args.get('error'):
-        return render_template('login.html', error=request.args.get('error'))
     return render_template('login.html')
 
 
@@ -46,6 +56,16 @@ def login():
 def logout():
     supabase.auth.sign_out()
     return redirect(url_for('home'))
+
+
+@app.route('/verify')
+def verify():
+    return render_template('verify.html')
+
+
+@app.route('/onboard')
+def onboard():
+    return render_template('onboard.html')
 
 
 if __name__ == '__main__':
