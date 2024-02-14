@@ -14,7 +14,6 @@ supabase: Client = create_client(supabase_url, supabase_key)
 
 # Flask-Setup
 app = Flask(__name__)
-app.secret_key = 'dein_sehr_geheimer_schlüssel'
 
 
 @app.route('/')
