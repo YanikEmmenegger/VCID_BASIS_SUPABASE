@@ -1,4 +1,4 @@
 #exclude .env
 #exclude ..env.example
 .env
-
+#made by yanik
