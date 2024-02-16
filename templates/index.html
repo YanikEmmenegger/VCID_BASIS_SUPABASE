@@ -6,11 +6,15 @@
 </head>
 <body>
     <h1>Startseite</h1>
-    <p>Status: {{ logged_in }}</p>
-    {% if not logged_in == 'eingeloggt' %}
+    {% if not username == None %}
+        <h2>Hello {{ username }} </h2>
+    {% endif %}
+    <p>isLoggedIn: {{ logged_in }}</p>
+    {% if not logged_in %}
         <a href="/login">Login</a>
     {% else %}
         <a href="/logout">Logout</a>
     {% endif %}
+    <p> {{ error }} </p>
 </body>
 </html>

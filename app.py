@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
@@ -14,12 +14,21 @@ supabase: Client = create_client(supabase_url, supabase_key)
 
 # Flask-Setup
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY')
 
 
 @app.route('/')
 def home():
-    user = supabase.auth.get_session()
-    logged_in = 'logged in' if user else 'not logged in'
+    user_session = supabase.auth.get_session()
+    logged_in = True if user_session else False
+    if logged_in:
+        try:
+            user = supabase.table('users').select('*').eq('id', user_session.user.id).execute()
+            if user.data:
+                return render_template('index.html', username=user.data[0]['name'], logged_in=logged_in)
+        except Exception as e:
+            return render_template('index.html', error=e, logged_in=logged_in)
+
     return render_template('index.html', logged_in=logged_in)
 
 
@@ -55,6 +64,7 @@ def login():
 @app.route('/logout')
 def logout():
     supabase.auth.sign_out()
+    session.pop('user', None)
     return redirect(url_for('home'))
 
 
